@@ -3,7 +3,7 @@
 import { STAMPS, TALK } from "./data.js";
 import { mapFor, areaOf, areaLabel } from "./world.js";
 import { ensureCity } from "./travel.js";
-import { ENCOUNTERS } from "./city.js";
+import { ENCOUNTERS, findPath } from "./city.js";
 import { worldSpot } from "./overworld.js";
 import { G } from "./state.js";
 import { ITEMS, ENEMIES, HEROES, EQUIP, SHOP_GEAR, SHOP_GEAR2, WARDEN_GEAR, RELAY_GEAR, SITE_GEAR, addGear, joinParty, leaveParty, unequip, bonusText, questStep, payQuest, canGift, markGift, resetGifts } from "./rules.js";
@@ -11,7 +11,7 @@ import { BEATS, SITE_BEATS, ENDINGS, destroyRelay, completeSite, banter } from "
 import { REGIONS, REGION_IDS } from "./regions.js";
 import { hash } from "./atlas.js";
 import { sfx, music, musicPush, musicPop } from "./audio.js";
-import { W, H, drawWindow, text, talk, choose, say, prompt, waitFor } from "./ui.js";
+import { W, H, TOUCH, drawWindow, text, talk, choose, say, prompt, waitFor } from "./ui.js";
 import { ask, prefetchQuest, takeQuest, warmAtlases, suggestions } from "./anansi.js";
 
 const T = 32, DIRS = ["up", "left", "down", "right"], SPEED = 110;
@@ -61,6 +61,13 @@ export class Field extends Phaser.Scene {
     this.cameras.main.setBounds(0, 0, M.w * T, M.h * T).startFollow(this.hero.s, true).setRoundPixels(true);
     this.keys = this.input.keyboard.addKeys("UP,DOWN,LEFT,RIGHT,W,A,S,D", false); // no key capture: the NPC text box needs W/A/S/D
     this.input.keyboard.on("keydown", e => this.onKey(e.key));
+    this.path = null; this.stuck = 0; this.pathDone = null;
+    this.input.on("pointerdown", (p, over) => this.onTap(p, over)); // tap to walk there, or to walk up to a person or object and use it
+    if (TOUCH) { // a Menu button for screens without an Esc key
+      drawWindow(this, W - 78, 6, 72, 28).setDepth(9500);
+      this.add.text(W - 42, 20, "Menu", { fontFamily: "monospace", fontSize: "14px", color: "#ffd76a" }).setOrigin(0.5).setScrollFactor(0).setDepth(9501);
+      this.add.zone(W - 78, 6, 72, 28).setOrigin(0).setScrollFactor(0).setInteractive({ useHandCursor: true }).on("pointerdown", () => this.onKey("Escape"));
+    }
     this.inZone = this.zonesAt(this.hero.s).length > 0; // arriving on an exit does not bounce you back
     this.nextFight = this.fightGap();
     this.events.on("resume", () => { this.input.keyboard.resetKeys(); });
@@ -290,6 +297,46 @@ export class Field extends Phaser.Scene {
     }
   }
 
+  /** A tap: on a person or object, walk up to it and use it; elsewhere, walk to the nearest free spot. Taps on buttons (over) are theirs. */
+  onTap(p, over) {
+    if (this.busy || over.length) return;
+    const { worldX: x, worldY: y } = p, tapBox = { x: x - 6, y: y - 6, w: 12, h: 12 };
+    const open = (tx, ty) => tx >= 0 && ty >= 0 && tx < this.M.w && ty < this.M.h && !this.blocked(tx * T + 16, ty * T + 28);
+    const s = this.hero.s, start = [Math.round((s.x - 16) / T), Math.round((s.y - 28) / T)];
+    const thing = this.things.find(t => hit(tapBox, { x: t.box.x - 8, y: t.box.y - 52, w: t.box.w + 16, h: t.box.h + 56 })); // a person is tall: the whole body counts
+    const goals = new Set();
+    if (thing) { // any free tile within reach of it
+      const cx = thing.box.x + thing.box.w / 2, cy = thing.box.y + thing.box.h / 2;
+      for (let tx = Math.floor(cx / T) - 2; tx <= Math.floor(cx / T) + 2; tx++) for (let ty = Math.floor(cy / T) - 2; ty <= Math.floor(cy / T) + 2; ty++)
+        if (open(tx, ty) && Math.hypot(tx * T + 16 - cx, ty * T + 28 - cy) <= 44) goals.add(`${tx},${ty}`);
+    } else {
+      const tx = Math.floor(x / T), ty = Math.floor(y / T);
+      for (let a = -2; a <= 2; a++) for (let b = -2; b <= 2; b++) if (open(tx + a, ty + b)) goals.add(`${tx + a},${ty + b}`);
+      if (open(tx, ty)) { goals.clear(); goals.add(`${tx},${ty}`); }
+    }
+    const path = goals.size && findPath(open, start, goals);
+    if (!path) return;
+    this.path = path.map(([tx, ty]) => feet(tx, ty)); this.stuck = 0;
+    this.pathDone = thing && (() => {
+      const dx = thing.box.x + thing.box.w / 2 - this.hero.s.x, dy = thing.box.y + thing.box.h / 2 - this.hero.s.y;
+      this.face(this.hero, Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? "left" : "right") : dy < 0 ? "up" : "down", false);
+      thing.act();
+    });
+    if (!this.path.length) this.pathStep(0); // already there
+  }
+
+  /** The direction keys' worth of movement toward the next stop on the tapped route; [0, 0] once it ends. */
+  pathStep(dt) {
+    const s = this.hero.s, v = (SPEED * Math.min(dt, 50)) / 1000;
+    while (this.path.length) {
+      const p = this.path[0], ex = p.x - s.x, ey = p.y - s.y;
+      if (Math.abs(ex) > Math.max(v, 1) || Math.abs(ey) > Math.max(v, 1)) return [Math.abs(ex) > v ? Math.sign(ex) : 0, Math.abs(ey) > v ? Math.sign(ey) : 0];
+      s.setPosition(p.x, p.y); this.path.shift();
+    }
+    const done = this.pathDone; this.path = null; this.pathDone = null; done?.();
+    return [0, 0];
+  }
+
   blocked(x, y) {
     const b = { x: x - 9, y: y - 8, w: 18, h: 10 };
     if (b.x < 0 || b.y < 0 || b.x + b.w > this.M.w * T || b.y + b.h > this.M.h * T) return true;
@@ -299,9 +346,10 @@ export class Field extends Phaser.Scene {
   zonesAt(s) { return (this.M.zones || []).filter(z => hit({ x: s.x - 2, y: s.y - 2, w: 4, h: 4 }, { x: z.x * T, y: z.y * T, w: z.w * T, h: z.h * T })); }
 
   update(_t, dt) {
-    if (this.busy) return;
+    if (this.busy) { this.path = null; this.pathDone = null; return; }
     const k = this.keys, h = this.hero, s = h.s;
-    const dx = (k.RIGHT.isDown || k.D.isDown) - (k.LEFT.isDown || k.A.isDown), dy = (k.DOWN.isDown || k.S.isDown) - (k.UP.isDown || k.W.isDown);
+    let dx = (k.RIGHT.isDown || k.D.isDown) - (k.LEFT.isDown || k.A.isDown), dy = (k.DOWN.isDown || k.S.isDown) - (k.UP.isDown || k.W.isDown);
+    if (dx || dy) { this.path = null; this.pathDone = null; } else if (this.path) [dx, dy] = this.pathStep(dt); // keys override a tapped route
     const moving = dx || dy;
     if (moving) {
       const v = (SPEED * Math.min(dt, 50)) / 1000, ox = s.x, oy = s.y;
@@ -310,7 +358,8 @@ export class Field extends Phaser.Scene {
       const dir = dy ? (dy < 0 ? "up" : "down") : dx < 0 ? "left" : "right";
       this.face(h, dir, true);
       const moved = Math.hypot(s.x - ox, s.y - oy);
-      if (moved) { this.trail.push({ x: s.x, y: s.y, dir }); this.afterStep(moved); }
+      if (moved) { this.stuck = 0; this.trail.push({ x: s.x, y: s.y, dir }); this.afterStep(moved); }
+      else if (this.path && (this.stuck += dt) > 300) { this.path = null; this.pathDone = null; } // wedged against something: give up the route
     } else this.face(h, h.dir, false);
     let p = null; // the companion walks the lead's path ~30px behind
     while (this.trail.length && Phaser.Math.Distance.Between(this.trail[0].x, this.trail[0].y, s.x, s.y) > 30) p = this.trail.shift();

@@ -75,6 +75,17 @@ export function walkable(M) {
   return { open, seen };
 }
 
+/** Shortest 4-way walk (tile coordinates, start excluded) from `start` to the nearest tile in `goals` ("x,y" strings), or null. open(tx, ty) as in walkable(). */
+export function findPath(open, start, goals) {
+  const prev = new Map([[start.join(), null]]), q = [start];
+  for (let i = 0; i < q.length; i++) {
+    const [x, y] = q[i];
+    if (goals.has(`${x},${y}`)) { const path = []; for (let k = `${x},${y}`; prev.get(k); k = prev.get(k).join()) path.unshift(k.split(",").map(Number)); return path; }
+    for (const [a, b] of [[x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]]) if (!prev.has(`${a},${b}`) && open(a, b)) { prev.set(`${a},${b}`, [x, y]); q.push([a, b]); }
+  }
+  return null;
+}
+
 /**
  * {map, area} for a destination. The layout is seeded by the name, so the same city always has the same streets; if a
  * layout leaves something unreachable it tries the next seed (up to 40 times, then uses the last one).

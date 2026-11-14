@@ -2,12 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Waypoint</title>
 <style>
   html, body { margin: 0; height: 100%; background: #05060c; }
   #game { width: 100vw; height: 100vh; position: relative; overflow: hidden; } /* Phaser centres the canvas and puts its DOM layer on top */
   canvas { image-rendering: pixelated; }
+  html, body { touch-action: none; overscroll-behavior: none; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; } /* taps are the game's: no scrolling, zooming or text selection */
 </style>
 </head>
 <body>
