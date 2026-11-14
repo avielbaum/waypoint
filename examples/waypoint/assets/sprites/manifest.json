@@ -1,0 +1,412 @@
+{
+ "lead_m": {
+  "name": "Kai",
+  "anims": {
+   "walk": {
+    "frames": 9,
+    "rows": 4
+   },
+   "slash": {
+    "frames": 6,
+    "rows": 4
+   },
+   "thrust": {
+    "frames": 8,
+    "rows": 4
+   },
+   "spellcast": {
+    "frames": 7,
+    "rows": 4
+   },
+   "hurt": {
+    "frames": 6,
+    "rows": 1
+   }
+  }
+ },
+ "lead_f": {
+  "name": "Mira",
+  "anims": {
+   "walk": {
+    "frames": 9,
+    "rows": 4
+   },
+   "slash": {
+    "frames": 6,
+    "rows": 4
+   },
+   "thrust": {
+    "frames": 8,
+    "rows": 4
+   },
+   "spellcast": {
+    "frames": 7,
+    "rows": 4
+   },
+   "hurt": {
+    "frames": 6,
+    "rows": 1
+   }
+  }
+ },
+ "agent": {
+  "name": "Directorate agent",
+  "anims": {
+   "walk": {
+    "frames": 9,
+    "rows": 4
+   },
+   "slash": {
+    "frames": 6,
+    "rows": 4
+   },
+   "thrust": {
+    "frames": 8,
+    "rows": 4
+   },
+   "spellcast": {
+    "frames": 7,
+    "rows": 4
+   },
+   "hurt": {
+    "frames": 6,
+    "rows": 1
+   }
+  }
+ },
+ "local_f": {
+  "name": "Ines",
+  "anims": {
+   "idle": {
+    "frames": 2,
+    "rows": 4
+   },
+   "walk": {
+    "frames": 9,
+    "rows": 4
+   },
+   "run": {
+    "frames": 8,
+    "rows": 4
+   },
+   "slash": {
+    "frames": 6,
+    "rows": 4
+   },
+   "thrust": {
+    "frames": 8,
+    "rows": 4
+   },
+   "spellcast": {
+    "frames": 7,
+    "rows": 4
+   },
+   "hurt": {
+    "frames": 6,
+    "rows": 1
+   },
+   "combat_idle": {
+    "frames": 2,
+    "rows": 4
+   }
+  }
+ },
+ "shopkeeper": {
+  "name": "Shopkeeper",
+  "anims": {
+   "walk": {
+    "frames": 9,
+    "rows": 4
+   },
+   "slash": {
+    "frames": 6,
+    "rows": 4
+   },
+   "thrust": {
+    "frames": 8,
+    "rows": 4
+   },
+   "spellcast": {
+    "frames": 7,
+    "rows": 4
+   },
+   "hurt": {
+    "frames": 6,
+    "rows": 1
+   }
+  }
+ },
+ "local_m": {
+  "name": "Local man",
+  "anims": {
+   "idle": {
+    "frames": 2,
+    "rows": 4
+   },
+   "walk": {
+    "frames": 9,
+    "rows": 4
+   },
+   "run": {
+    "frames": 8,
+    "rows": 4
+   },
+   "slash": {
+    "frames": 6,
+    "rows": 4
+   },
+   "thrust": {
+    "frames": 8,
+    "rows": 4
+   },
+   "spellcast": {
+    "frames": 7,
+    "rows": 4
+   },
+   "hurt": {
+    "frames": 6,
+    "rows": 1
+   },
+   "combat_idle": {
+    "frames": 2,
+    "rows": 4
+   }
+  }
+ },
+ "local_f2": {
+  "name": "Local woman",
+  "anims": {
+   "walk": {
+    "frames": 9,
+    "rows": 4
+   },
+   "slash": {
+    "frames": 6,
+    "rows": 4
+   },
+   "thrust": {
+    "frames": 8,
+    "rows": 4
+   },
+   "spellcast": {
+    "frames": 7,
+    "rows": 4
+   },
+   "hurt": {
+    "frames": 6,
+    "rows": 1
+   }
+  }
+ },
+ "local_m2": {
+  "name": "Local worker",
+  "anims": {
+   "idle": {
+    "frames": 2,
+    "rows": 4
+   },
+   "walk": {
+    "frames": 9,
+    "rows": 4
+   },
+   "run": {
+    "frames": 8,
+    "rows": 4
+   },
+   "slash": {
+    "frames": 6,
+    "rows": 4
+   },
+   "thrust": {
+    "frames": 8,
+    "rows": 4
+   },
+   "spellcast": {
+    "frames": 7,
+    "rows": 4
+   },
+   "hurt": {
+    "frames": 6,
+    "rows": 1
+   },
+   "combat_idle": {
+    "frames": 2,
+    "rows": 4
+   }
+  }
+ },
+ "sora": {
+  "name": "Sora",
+  "anims": {
+   "idle": {
+    "frames": 2,
+    "rows": 4
+   },
+   "walk": {
+    "frames": 9,
+    "rows": 4
+   },
+   "run": {
+    "frames": 8,
+    "rows": 4
+   },
+   "slash": {
+    "frames": 6,
+    "rows": 4
+   },
+   "thrust": {
+    "frames": 8,
+    "rows": 4
+   },
+   "spellcast": {
+    "frames": 7,
+    "rows": 4
+   },
+   "hurt": {
+    "frames": 6,
+    "rows": 1
+   },
+   "combat_idle": {
+    "frames": 2,
+    "rows": 4
+   }
+  }
+ },
+ "ilse": {
+  "name": "Ilse",
+  "anims": {
+   "walk": {
+    "frames": 9,
+    "rows": 4
+   },
+   "slash": {
+    "frames": 6,
+    "rows": 4
+   },
+   "thrust": {
+    "frames": 8,
+    "rows": 4
+   },
+   "spellcast": {
+    "frames": 7,
+    "rows": 4
+   },
+   "hurt": {
+    "frames": 6,
+    "rows": 1
+   }
+  }
+ },
+ "oluwa": {
+  "name": "Oluwa",
+  "anims": {
+   "idle": {
+    "frames": 2,
+    "rows": 4
+   },
+   "walk": {
+    "frames": 9,
+    "rows": 4
+   },
+   "run": {
+    "frames": 8,
+    "rows": 4
+   },
+   "slash": {
+    "frames": 6,
+    "rows": 4
+   },
+   "thrust": {
+    "frames": 8,
+    "rows": 4
+   },
+   "spellcast": {
+    "frames": 7,
+    "rows": 4
+   },
+   "hurt": {
+    "frames": 6,
+    "rows": 1
+   },
+   "combat_idle": {
+    "frames": 2,
+    "rows": 4
+   }
+  }
+ },
+ "vesper": {
+  "name": "Vesper",
+  "anims": {
+   "walk": {
+    "frames": 9,
+    "rows": 4
+   },
+   "slash": {
+    "frames": 6,
+    "rows": 4
+   },
+   "thrust": {
+    "frames": 8,
+    "rows": 4
+   },
+   "spellcast": {
+    "frames": 7,
+    "rows": 4
+   },
+   "hurt": {
+    "frames": 6,
+    "rows": 1
+   }
+  }
+ },
+ "kessler": {
+  "name": "Agent Kessler",
+  "anims": {
+   "walk": {
+    "frames": 9,
+    "rows": 4
+   },
+   "slash": {
+    "frames": 6,
+    "rows": 4
+   },
+   "thrust": {
+    "frames": 8,
+    "rows": 4
+   },
+   "spellcast": {
+    "frames": 7,
+    "rows": 4
+   },
+   "hurt": {
+    "frames": 6,
+    "rows": 1
+   }
+  }
+ },
+ "director": {
+  "name": "The Director",
+  "anims": {
+   "walk": {
+    "frames": 9,
+    "rows": 4
+   },
+   "slash": {
+    "frames": 6,
+    "rows": 4
+   },
+   "thrust": {
+    "frames": 8,
+    "rows": 4
+   },
+   "spellcast": {
+    "frames": 7,
+    "rows": 4
+   },
+   "hurt": {
+    "frames": 6,
+    "rows": 1
+   }
+  }
+ }
+}

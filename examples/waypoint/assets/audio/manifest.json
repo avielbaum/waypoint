@@ -1,0 +1,162 @@
+{
+ "music": {
+  "title": {
+   "file": "music/title.ogg",
+   "gain": 0.282
+  },
+  "town": {
+   "file": "music/town.ogg",
+   "gain": 0.484
+  },
+  "road": {
+   "file": "music/road.ogg",
+   "gain": 0.355
+  },
+  "ruins": {
+   "file": "music/ruins.ogg",
+   "gain": 0.891
+  },
+  "snow": {
+   "file": "music/snow.ogg",
+   "gain": 0.569
+  },
+  "tropical": {
+   "file": "music/tropical.ogg",
+   "gain": 1.0
+  },
+  "cave": {
+   "file": "music/cave.ogg",
+   "gain": 0.313
+  },
+  "spire": {
+   "file": "music/spire.ogg",
+   "gain": 0.407
+  },
+  "final": {
+   "file": "music/final.ogg",
+   "gain": 0.442
+  },
+  "battle": {
+   "file": "music/battle.ogg",
+   "gain": 0.767
+  },
+  "tension": {
+   "file": "music/tension.ogg",
+   "gain": 0.61
+  },
+  "ending": {
+   "file": "music/ending.ogg",
+   "gain": 0.266
+  }
+ },
+ "sfx": {
+  "move": {
+   "file": "sfx/move.mp3"
+  },
+  "accept": {
+   "file": "sfx/accept.mp3"
+  },
+  "cancel": {
+   "file": "sfx/cancel.mp3"
+  },
+  "blip": {
+   "file": "sfx/blip.mp3"
+  },
+  "page": {
+   "file": "sfx/page.mp3"
+  },
+  "save": {
+   "file": "sfx/save.mp3"
+  },
+  "chest": {
+   "file": "sfx/chest.mp3"
+  },
+  "pickup": {
+   "file": "sfx/pickup.mp3"
+  },
+  "coin": {
+   "file": "sfx/coin.mp3"
+  },
+  "gift": {
+   "file": "sfx/gift.mp3"
+  },
+  "step": {
+   "file": "sfx/step.mp3"
+  },
+  "potion": {
+   "file": "sfx/potion.mp3"
+  },
+  "pad": {
+   "file": "sfx/pad.mp3"
+  },
+  "heal": {
+   "file": "sfx/heal.mp3"
+  },
+  "hit": {
+   "file": "sfx/hit.mp3"
+  },
+  "hurt": {
+   "file": "sfx/hurt.mp3"
+  },
+  "slash": {
+   "file": "sfx/slash.mp3"
+  },
+  "thrust": {
+   "file": "sfx/thrust.mp3"
+  },
+  "blink": {
+   "file": "sfx/blink.mp3"
+  },
+  "magic": {
+   "file": "sfx/magic.mp3"
+  },
+  "lance": {
+   "file": "sfx/lance.mp3"
+  },
+  "burst": {
+   "file": "sfx/burst.mp3"
+  },
+  "wave": {
+   "file": "sfx/wave.mp3"
+  },
+  "defend": {
+   "file": "sfx/defend.mp3"
+  },
+  "flee": {
+   "file": "sfx/flee.mp3"
+  },
+  "foedown": {
+   "file": "sfx/foedown.mp3"
+  },
+  "rage": {
+   "file": "sfx/rage.mp3"
+  },
+  "alert": {
+   "file": "sfx/alert.mp3"
+  },
+  "teleport": {
+   "file": "sfx/teleport.mp3"
+  },
+  "door": {
+   "file": "sfx/door.mp3"
+  },
+  "relay": {
+   "file": "sfx/relay.mp3"
+  },
+  "victory": {
+   "file": "sfx/victory.mp3"
+  },
+  "levelup": {
+   "file": "sfx/levelup.mp3"
+  },
+  "gameover": {
+   "file": "sfx/gameover.mp3"
+  },
+  "questdone": {
+   "file": "sfx/questdone.mp3"
+  },
+  "rest": {
+   "file": "sfx/rest.mp3"
+  }
+ }
+}

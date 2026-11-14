@@ -1,0 +1,49 @@
+file,source file in the pack,authors,licence,url
+music/title.ogg,Musics/1 - Adventure Begin.ogg,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+music/town.ogg,Musics/4 - Village.ogg,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+music/road.ogg,Musics/23 - Road.ogg,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+music/ruins.ogg,Musics/30 - Ruins.ogg,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+music/snow.ogg,Musics/16 - Melancholia.ogg,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+music/tropical.ogg,Musics/18 - Aquatic.ogg,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+music/cave.ogg,Musics/2 - The Cave.ogg,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+music/spire.ogg,Musics/10 - Dark Castle.ogg,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+music/final.ogg,Musics/24 - Final Area.ogg,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+music/battle.ogg,Musics/17 - Fight.ogg,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+music/tension.ogg,Musics/28 - Tension.ogg,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+music/ending.ogg,Musics/8 - End Theme.ogg,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+sfx/move.mp3,Sounds/Menu/Move3.wav,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+sfx/accept.mp3,Sounds/Menu/Accept4.wav,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+sfx/cancel.mp3,Sounds/Menu/Cancel2.wav,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+sfx/blip.mp3,Sounds/Voice/Voice4.wav,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+sfx/page.mp3,Sounds/Menu/Menu5.wav,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+sfx/save.mp3,Sounds/Menu/Accept5.wav,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+sfx/chest.mp3,Sounds/Bonus/Bonus.wav,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+sfx/pickup.mp3,Sounds/Bonus/Coin.wav,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+sfx/coin.mp3,Sounds/Bonus/Coin2.wav,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+sfx/gift.mp3,Sounds/Bonus/Bonus2.wav,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+sfx/step.mp3,Sounds/Bonus/Bonus3.wav,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+sfx/potion.mp3,Sounds/Bonus/PowerUp1.wav,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+sfx/pad.mp3,Sounds/Magic & Skill/Heal3.wav,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+sfx/heal.mp3,Sounds/Magic & Skill/Heal.wav,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+sfx/hit.mp3,Sounds/Hit & Impact/Hit1.wav,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+sfx/hurt.mp3,Sounds/Hit & Impact/Hit5.wav,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+sfx/slash.mp3,Sounds/Whoosh & Slash/Slash3.wav,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+sfx/thrust.mp3,Sounds/Whoosh & Slash/Slash5.wav,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+sfx/blink.mp3,Sounds/Whoosh & Slash/Whoosh2.wav,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+sfx/magic.mp3,Sounds/Magic & Skill/Magic1.wav,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+sfx/lance.mp3,Sounds/Magic & Skill/Magic4.wav,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+sfx/burst.mp3,Sounds/Elemental/Explosion3.wav,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+sfx/wave.mp3,Sounds/Magic & Skill/Magic5.wav,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+sfx/defend.mp3,Sounds/Menu/Menu6.wav,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+sfx/flee.mp3,Sounds/Jump & Bounce/Jump2.wav,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+sfx/foedown.mp3,Sounds/Elemental/Explosion.wav,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+sfx/rage.mp3,Sounds/Alert/Alert5.wav,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+sfx/alert.mp3,Sounds/Alert/Alert3.wav,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+sfx/teleport.mp3,Sounds/Magic & Skill/Spirit.wav,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+sfx/door.mp3,Sounds/Whoosh & Slash/Whoosh.wav,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+sfx/relay.mp3,Sounds/Elemental/Explosion5.wav,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+sfx/victory.mp3,Jingles/Success3.wav,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+sfx/levelup.mp3,Jingles/LevelUp1.wav,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+sfx/gameover.mp3,Jingles/GameOver2.wav,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+sfx/questdone.mp3,Jingles/Success4.wav,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
+sfx/rest.mp3,Jingles/Success2.wav,Pixel-boy; AAA,CC0,https://pixel-boy.itch.io/ninja-adventure-asset-pack
