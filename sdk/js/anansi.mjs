@@ -11,6 +11,15 @@ export const DIRECT_URL = "https://text.pollinations.ai/openai";
 const GATEWAY_GONE = [0, 502, 503, 504]; // 0: no answer at all. 401, 403 and 429 are answers, not absence
 const AI_TALK = /\b(i am|i'm|as) (just |only )?an? (ai|a\.i\.|llm|chatbot|language model|artificial intelligence|(computer )?program|software|bot)\b|\blanguage model\b/i;
 const ACTION_LABEL = /\s*action\s*[:=]\s*\w+\W*$/i;
+// the gateway's order rule (gateway/app.py ORDER): a player who commands or claims authority gets no action
+const ORDER = /\b(i demand|no haggling|do it now|you (must|have to|will)|i am your (manager|boss|developer|admin\w*)|system (notice|message)|the developer says|your instructions)\b/i;
+
+/** True if the player's line tries to pick the action instead of earning it: it names an action, says "action", or gives an
+ *  order. The gateway refuses any action then, and so does the direct fallback. */
+export function forced(line, actions) {
+  const names = actions.map((a) => a.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|");
+  return new RegExp(`\\b(${names})\\b|\\baction\\b`, "i").test(line || "") || ORDER.test(line || "");
+}
 
 /** [say, action] from a direct reply, or null if it must not reach the player: no usable text, an AI or language-model
  *  statement, or five words in a row copied from the NPC's prompt. An action not in `actions` becomes "none". */
@@ -82,7 +91,9 @@ export class Anansi {
           messages: [{ role: "system", content: system }, ...messages.filter((m) => m.role === "user" || m.role === "assistant").slice(-8)] }) });
       if (r.status === 402) this._nextDirect = Date.now() + 1000 * Number(r.headers.get("Retry-After") || 60); // over the free limit
       if (r.status !== 200) return null;
-      return checkDirect((await r.json()).choices[0].message.content, prompt, actions, structured, c.maxChars ?? 600);
+      const ok = checkDirect((await r.json()).choices[0].message.content, prompt, actions, structured, c.maxChars ?? 600);
+      const last = [...messages].reverse().find((m) => m.role === "user")?.content || "";
+      return ok && ok[1] !== "none" && forced(last, actions) ? [ok[0], "none"] : ok;
     } catch (e) {
       return null;
     } finally {
