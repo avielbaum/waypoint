@@ -1,6 +1,6 @@
 // Anansi game SDK for JavaScript and TypeScript (types in anansi.d.ts). Browsers, Node 18+, Deno, Bun, Electron.
 // Same contract as sdk/anansi_client.py and sdk/unity/Anansi.cs: ask the gateway, and on a timeout, a 429, an auth
-// error or any failure answer from the fallback so the game never stalls. Every result has source "gateway" or "fallback".
+// error or any failure answer from the fallback so the game never stalls. Every result has source "gateway", "direct" or "fallback".
 // Browsers: list the page's origin in the gateway's cors_origins (or use a same-origin proxy), and never ship a title
 // key to browsers you do not control.
 
@@ -24,7 +24,8 @@ export function checkDirect(text, system, actions, structured, maxChars = 600) {
     text = String(d.say ?? "");
     act = actions.includes(d.action) ? d.action : "none";
   }
-  const say = (text || "").replace(ACTION_LABEL, "").split(/\s+/).filter(Boolean).join(" ").slice(0, maxChars).trim();
+  const say = (text || "").replace(ACTION_LABEL, "").split("\n").map((l) => l.split(/\s+/).filter(Boolean).join(" ")).filter(Boolean)
+    .join("\n").slice(0, maxChars).trim(); // line breaks kept: some prompts ask for an answer in lines
   const words = system.toLowerCase().match(/\w+/g) || [];
   const grams = new Set(words.slice(0, -4).map((_, i) => words.slice(i, i + 5).join(" ")));
   const said = say.toLowerCase().match(/\w+/g) || [];
@@ -32,7 +33,12 @@ export function checkDirect(text, system, actions, structured, maxChars = 600) {
   return [say, act];
 }
 
+const directSlot = { next: 0 }; // shared by every client on the page: the free limit is per player IP, not per client
+
 export class Anansi {
+  get _nextDirect() { return directSlot.next; }
+  set _nextDirect(v) { directSlot.next = v; }
+
   /**
    * @param {object} o
    * @param {string} o.baseUrl   gateway URL, e.g. https://gateway.example
@@ -54,9 +60,8 @@ export class Anansi {
     this.streamTimeoutMs = o.streamTimeoutMs ?? 30000; // a whole streamed reply once it has started
     this.generationTimeoutMs = o.generationTimeoutMs ?? 60000; // quests/storylines are slow: use them on loading screens
     this.fetch = o.fetch || globalThis.fetch.bind(globalThis);
-    // {system, actions, url, model, minIntervalMs, timeoutMs}: see DIRECT_URL above and docs/sdk.md before turning it on
+    // {system, actions, url, model, minIntervalMs, timeoutMs, maxChars}: see DIRECT_URL above and docs/sdk.md before turning it on
     this.direct = o.direct || null;
-    this._nextDirect = 0;
   }
 
   /** [say, action] from the direct LLM, or null (off, too soon after the last call, no answer, or failed the checks). */
@@ -65,7 +70,9 @@ export class Anansi {
     if (!c || Date.now() < this._nextDirect) return null;
     this._nextDirect = Date.now() + (c.minIntervalMs ?? 60000);
     const actions = [...(c.actions || [])];
-    const system = c.system + (!structured ? "" : ' Reply with only a JSON object, no other text, shaped like this: {"say": "<what you say>", "action": '
+    const own = messages.filter((m) => m.role === "system").map((m) => m.content).join("\n"); // the game's NPC persona
+    const prompt = c.system + (own ? "\n" + own : "");
+    const system = prompt + (!structured ? "" : ' Reply with only a JSON object, no other text, shaped like this: {"say": "<what you say>", "action": '
       + [...actions, "none"].map((a) => JSON.stringify(a)).join(" | ") + "}");
     const ctl = new AbortController();
     const timer = setTimeout(() => ctl.abort(), c.timeoutMs ?? 20000);
@@ -75,7 +82,7 @@ export class Anansi {
           messages: [{ role: "system", content: system }, ...messages.filter((m) => m.role === "user" || m.role === "assistant").slice(-8)] }) });
       if (r.status === 402) this._nextDirect = Date.now() + 1000 * Number(r.headers.get("Retry-After") || 60); // over the free limit
       if (r.status !== 200) return null;
-      return checkDirect((await r.json()).choices[0].message.content, c.system, actions, structured);
+      return checkDirect((await r.json()).choices[0].message.content, prompt, actions, structured, c.maxChars ?? 600);
     } catch (e) {
       return null;
     } finally {

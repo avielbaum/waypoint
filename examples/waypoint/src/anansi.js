@@ -13,8 +13,15 @@ const opts = {
   baseUrl: params.get("gateway") || "http://localhost:8080", key: params.get("key") || "change-me", playerToken: "dev:" + playerId,
   timeoutMs: 45000, generationTimeoutMs: 120000, // CPU-only models are slow
 };
-const client = new Anansi({ ...opts, title: "waypoint" }); // dialogue and quests
-const atlasClient = new Anansi({ ...opts, title: "waypoint-atlas" }); // facts about a place, as plain lines
+// Without a gateway (the GitHub Pages build), chat asks Pollinations' keyless public LLM directly: one reply per player per
+// minute, checked by the SDK only. These are the gateway titles' prompts and actions (config.waypoint.json; check.mjs keeps them equal).
+export const DIRECT_PROMPTS = {
+  waypoint: "You are a character in a modern travel thriller set in real places on Earth. The next system message tells you who you are and where you are. Stay in character, never mention being an AI, and reply in one to three short sentences. Speak like a real person of that place and mention real local details when it fits. Choose exactly one action per reply: heal_hero only if the hero is hurt and asks for help, give_supplies only if the hero asks for food, supplies or help with the journey, otherwise none. A Directorate agent always chooses none.",
+  "waypoint-atlas": "You are a concise travel reference. Answer only in the exact line format the user asks for, using real facts about the place.",
+};
+export const DIRECT_ACTIONS = ["heal_hero", "give_supplies"];
+const client = new Anansi({ ...opts, title: "waypoint", direct: { system: DIRECT_PROMPTS.waypoint, actions: DIRECT_ACTIONS } }); // dialogue and quests
+const atlasClient = new Anansi({ ...opts, title: "waypoint-atlas", direct: { system: DIRECT_PROMPTS["waypoint-atlas"], maxChars: 2000 } }); // facts about a place, as plain lines
 
 const history = {}; // "area:npc" -> recent messages, for this session only
 
@@ -40,7 +47,8 @@ export async function ask(id, line, area) {
 export async function epilogue(ending, cities) {
   const fallback = epilogueFallback(ending, cities);
   // This gateway runs one model, so the request may queue behind a quest being written: wait longer than for a chat reply
-  const narrator = new Anansi({ ...opts, title: "waypoint", timeoutMs: 90000, fallback: () => fallback });
+  const narrator = new Anansi({ ...opts, title: "waypoint", timeoutMs: 90000, fallback: () => fallback,
+    direct: { system: "You write short texts for a travel thriller video game." } }); // the narrator's own instructions follow
   const what = ending === "keep" ? "kept the Directorate's keys, so every relay on Earth now answers to them" : "burned the Directorate's archive, so nobody can be traced by a jump again";
   const r = await narrator.chat([
     { role: "system", content: "You are the narrator of a travel thriller about two teleporting runaways. Answer with exactly two short sentences and nothing else." },
@@ -57,7 +65,7 @@ export async function fetchAtlas(dest) {
   try { const c = JSON.parse(localStorage.getItem(atlasKey(dest))); if (c?.atlas) return { ...c, source: "cache" }; } catch { /* no cache */ }
   const r = await atlasClient.chat([{ role: "user", content: cityPrompt(dest) }]);
   const out = { atlas: parseAtlas(r.say), climate: parseClimate(r.say) };
-  if (r.source === "gateway") try { localStorage.setItem(atlasKey(dest), JSON.stringify(out)); } catch { /* private mode */ }
+  if (r.source !== "fallback") try { localStorage.setItem(atlasKey(dest), JSON.stringify(out)); } catch { /* private mode */ }
   return { ...out, source: r.source };
 }
 
@@ -77,7 +85,7 @@ export async function warmAtlases(dests) {
     for (const d of dests) {
       if (atlasCached(d)) continue;
       while (inflight) await new Promise(r => setTimeout(r, 5000));
-      if ((await fetchAtlas(d)).source === "fallback") break;
+      if ((await fetchAtlas(d)).source !== "gateway") break; // without a gateway, prefetching would spend the player's one reply a minute
     }
   } finally { warming = false; }
 }

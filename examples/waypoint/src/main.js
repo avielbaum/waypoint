@@ -57,6 +57,9 @@ class Title extends Phaser.Scene {
     this.add.text(W / 2, 150, "You can be anywhere you can picture.", { ...FONT, color: "#c8d0ff" }).setOrigin(0.5);
     music("title");
     this.add.text(W / 2, H - 14, "M: sound on / off", { ...FONT, fontSize: "11px", color: "#8890c0" }).setOrigin(0.5);
+    // the direct fallback sends what the player types to a third party: say so before they type anything
+    this.add.text(W / 2, H - 32, "Without an Anansi server, replies come from Pollinations AI (pollinations.ai), which receives what you type.",
+      { ...FONT, fontSize: "9px", color: "#8890c0", align: "center", wordWrap: { width: W - 24 } }).setOrigin(0.5);
     const saved = hasSave();
     const k = await choose(this, W / 2 - 80, 200, 160, [saved ? "Continue" : { label: "Continue", disabled: true }, "New Game"], { cancel: false });
     if (k === 0 && load()) this.scene.start("field", {});
