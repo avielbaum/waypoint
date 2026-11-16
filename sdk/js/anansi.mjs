@@ -4,6 +4,34 @@
 // Browsers: list the page's origin in the gateway's cors_origins (or use a same-origin proxy), and never ship a title
 // key to browsers you do not control.
 
+// Direct fallback (off unless set): when the gateway cannot be reached, ask a public LLM straight from the game. Default is
+// Pollinations' keyless endpoint, which allows one reply per player IP every 45 s (measured 2026-11-15; it changes); the SDK spaces calls 60 s apart by default and keeps to
+// that itself (their terms forbid evading limits). None of the gateway's checks run there, so the reply is checked here.
+export const DIRECT_URL = "https://text.pollinations.ai/openai";
+const GATEWAY_GONE = [0, 502, 503, 504]; // 0: no answer at all. 401, 403 and 429 are answers, not absence
+const AI_TALK = /\b(i am|i'm|as) (just |only )?an? (ai|a\.i\.|llm|chatbot|language model|artificial intelligence|(computer )?program|software|bot)\b|\blanguage model\b/i;
+const ACTION_LABEL = /\s*action\s*[:=]\s*\w+\W*$/i;
+
+/** [say, action] from a direct reply, or null if it must not reach the player: no usable text, an AI or language-model
+ *  statement, or five words in a row copied from the NPC's prompt. An action not in `actions` becomes "none". */
+export function checkDirect(text, system, actions, structured, maxChars = 600) {
+  let act = "none";
+  if (structured) {
+    const m = /\{[\s\S]*\}/.exec(text || "");
+    let d = null;
+    try { d = m ? JSON.parse(m[0]) : null; } catch { d = null; }
+    if (!d || typeof d !== "object" || Array.isArray(d)) return null;
+    text = String(d.say ?? "");
+    act = actions.includes(d.action) ? d.action : "none";
+  }
+  const say = (text || "").replace(ACTION_LABEL, "").split(/\s+/).filter(Boolean).join(" ").slice(0, maxChars).trim();
+  const words = system.toLowerCase().match(/\w+/g) || [];
+  const grams = new Set(words.slice(0, -4).map((_, i) => words.slice(i, i + 5).join(" ")));
+  const said = say.toLowerCase().match(/\w+/g) || [];
+  if (!say || AI_TALK.test(say) || said.slice(0, -4).some((_, i) => grams.has(said.slice(i, i + 5).join(" ")))) return null;
+  return [say, act];
+}
+
 export class Anansi {
   /**
    * @param {object} o
@@ -26,6 +54,33 @@ export class Anansi {
     this.streamTimeoutMs = o.streamTimeoutMs ?? 30000; // a whole streamed reply once it has started
     this.generationTimeoutMs = o.generationTimeoutMs ?? 60000; // quests/storylines are slow: use them on loading screens
     this.fetch = o.fetch || globalThis.fetch.bind(globalThis);
+    // {system, actions, url, model, minIntervalMs, timeoutMs}: see DIRECT_URL above and docs/sdk.md before turning it on
+    this.direct = o.direct || null;
+    this._nextDirect = 0;
+  }
+
+  /** [say, action] from the direct LLM, or null (off, too soon after the last call, no answer, or failed the checks). */
+  async _direct(messages, structured) {
+    const c = this.direct;
+    if (!c || Date.now() < this._nextDirect) return null;
+    this._nextDirect = Date.now() + (c.minIntervalMs ?? 60000);
+    const actions = [...(c.actions || [])];
+    const system = c.system + (!structured ? "" : ' Reply with only a JSON object, no other text, shaped like this: {"say": "<what you say>", "action": '
+      + [...actions, "none"].map((a) => JSON.stringify(a)).join(" | ") + "}");
+    const ctl = new AbortController();
+    const timer = setTimeout(() => ctl.abort(), c.timeoutMs ?? 20000);
+    try {
+      const r = await this.fetch(c.url || DIRECT_URL, { method: "POST", headers: { "Content-Type": "application/json" }, signal: ctl.signal,
+        body: JSON.stringify({ model: c.model || "openai", max_tokens: c.maxTokens ?? 400,
+          messages: [{ role: "system", content: system }, ...messages.filter((m) => m.role === "user" || m.role === "assistant").slice(-8)] }) });
+      if (r.status === 402) this._nextDirect = Date.now() + 1000 * Number(r.headers.get("Retry-After") || 60); // over the free limit
+      if (r.status !== 200) return null;
+      return checkDirect((await r.json()).choices[0].message.content, c.system, actions, structured);
+    } catch (e) {
+      return null;
+    } finally {
+      clearTimeout(timer);
+    }
   }
 
   async _headers() {
@@ -93,10 +148,12 @@ export class Anansi {
   async chat(messages, { npcId, structured = false } = {}) {
     const body = { messages, structured };
     if (npcId) body.npc_id = npcId;
-    const r = await this._post("/v1/npc", body, this.timeoutMs);
-    if (r && typeof r.say === "string" && r.say) {
+    const [s, r] = await this._call("POST", "/v1/npc", body);
+    if (s === 200 && r && typeof r.say === "string" && r.say) {
       return { source: "gateway", say: r.say, action: r.action || "none", filtered: !!r.filtered };
     }
+    const d = GATEWAY_GONE.includes(s) ? await this._direct(messages, structured) : null;
+    if (d) return { source: "direct", say: d[0], action: d[1], filtered: false };
     return this._fallbackReply(messages);
   }
 
@@ -107,11 +164,13 @@ export class Anansi {
   async chatStream(messages, onSentence, { npcId } = {}) {
     let said = "";
     let filtered = false;
+    let status = 0;
     const ctl = new AbortController();
     let timer = setTimeout(() => ctl.abort(), this.timeoutMs);
     try {
       const body = { stream: true, anansi: { npc_id: npcId || null }, messages };
       const r = await this.fetch(this.base + "/v1/chat/completions", { method: "POST", headers: await this._headers(), body: JSON.stringify(body), signal: ctl.signal });
+      status = r.status;
       if (r.status === 200 && r.body) {
         const reader = r.body.getReader();
         const dec = new TextDecoder();
@@ -143,6 +202,12 @@ export class Anansi {
       clearTimeout(timer);
     }
     if (said) return { source: "gateway", say: said, action: "none", filtered };
+    // shortcut: a stream that never started tries the direct LLM whole, not sentence by sentence
+    const d = GATEWAY_GONE.includes(status) ? await this._direct(messages, false) : null;
+    if (d) {
+      onSentence(d[0]);
+      return { source: "direct", say: d[0], action: "none", filtered: false };
+    }
     const fb = await this._fallbackReply(messages);
     onSentence(fb.say);
     return fb;
