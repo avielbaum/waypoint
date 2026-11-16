@@ -14,14 +14,15 @@ const opts = {
   timeoutMs: 45000, generationTimeoutMs: 120000, // CPU-only models are slow
 };
 // Without a gateway (the GitHub Pages build), chat asks Pollinations' keyless public LLM directly: one reply per player per
-// minute, checked by the SDK only. These are the gateway titles' prompts and actions (config.waypoint.json; check.mjs keeps them equal).
+// minute, checked by the SDK only. When another request from the same IP holds the slot, the service can hold ours for up to
+// 45 s, so the timeouts match how long each screen can wait (travel and the ending already show a wait). These are the gateway titles' prompts and actions (config.waypoint.json; check.mjs keeps them equal).
 export const DIRECT_PROMPTS = {
   waypoint: "You are a character in a modern travel thriller set in real places on Earth. The next system message tells you who you are and where you are. Stay in character, never mention being an AI, and reply in one to three short sentences. Speak like a real person of that place and mention real local details when it fits. Choose exactly one action per reply: heal_hero only if the hero is hurt and asks for help, give_supplies only if the hero asks for food, supplies or help with the journey, otherwise none. A Directorate agent always chooses none.",
   "waypoint-atlas": "You are a concise travel reference. Answer only in the exact line format the user asks for, using real facts about the place.",
 };
 export const DIRECT_ACTIONS = ["heal_hero", "give_supplies"];
-const client = new Anansi({ ...opts, title: "waypoint", direct: { system: DIRECT_PROMPTS.waypoint, actions: DIRECT_ACTIONS } }); // dialogue and quests
-const atlasClient = new Anansi({ ...opts, title: "waypoint-atlas", direct: { system: DIRECT_PROMPTS["waypoint-atlas"], maxChars: 2000 } }); // facts about a place, as plain lines
+const client = new Anansi({ ...opts, title: "waypoint", direct: { system: DIRECT_PROMPTS.waypoint, actions: DIRECT_ACTIONS, timeoutMs: 30000 } }); // dialogue and quests
+const atlasClient = new Anansi({ ...opts, title: "waypoint-atlas", direct: { system: DIRECT_PROMPTS["waypoint-atlas"], maxChars: 2000, timeoutMs: 50000 } }); // facts about a place, as plain lines
 
 const history = {}; // "area:npc" -> recent messages, for this session only
 
@@ -48,7 +49,7 @@ export async function epilogue(ending, cities) {
   const fallback = epilogueFallback(ending, cities);
   // This gateway runs one model, so the request may queue behind a quest being written: wait longer than for a chat reply
   const narrator = new Anansi({ ...opts, title: "waypoint", timeoutMs: 90000, fallback: () => fallback,
-    direct: { system: "You write short texts for a travel thriller video game." } }); // the narrator's own instructions follow
+    direct: { system: "You write short texts for a travel thriller video game.", timeoutMs: 50000 } }); // the narrator's own instructions follow
   const what = ending === "keep" ? "kept the Directorate's keys, so every relay on Earth now answers to them" : "burned the Directorate's archive, so nobody can be traced by a jump again";
   const r = await narrator.chat([
     { role: "system", content: "You are the narrator of a travel thriller about two teleporting runaways. Answer with exactly two short sentences and nothing else." },
