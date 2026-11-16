@@ -54,7 +54,7 @@ export class Anansi {
    * @param {string} o.title     title id
    * @param {string} o.key       title key
    * @param {string | (() => string | Promise<string>)} o.playerToken  proof of who the player is, from your platform;
-   *        pass a function if it expires (on Steam, the hex web-API auth ticket)
+   *        pass a function if it expires
    * @param {(messages: object[]) => string | Promise<string>} [o.fallback]  local answer when the gateway cannot (default "...")
    */
   constructor(o) {
