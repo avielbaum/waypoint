@@ -83,12 +83,18 @@ export class Anansi {
     const prompt = c.system + (own ? "\n" + own : "");
     const system = prompt + (!structured ? "" : ' Reply with only a JSON object, no other text, shaped like this: {"say": "<what you say>", "action": '
       + [...actions, "none"].map((a) => JSON.stringify(a)).join(" | ") + "}");
-    const ctl = new AbortController();
-    const timer = setTimeout(() => ctl.abort(), c.timeoutMs ?? 20000);
+    const ctl = new AbortController(), started = Date.now(), limit = c.timeoutMs ?? 20000;
+    const timer = setTimeout(() => ctl.abort(), limit);
+    const send = () => this.fetch(c.url || DIRECT_URL, { method: "POST", headers: { "Content-Type": "application/json" }, signal: ctl.signal,
+      body: JSON.stringify({ model: c.model || "openai", max_tokens: c.maxTokens ?? 400,
+        messages: [{ role: "system", content: system }, ...messages.filter((m) => m.role === "user" || m.role === "assistant").slice(-8)] }) });
     try {
-      const r = await this.fetch(c.url || DIRECT_URL, { method: "POST", headers: { "Content-Type": "application/json" }, signal: ctl.signal,
-        body: JSON.stringify({ model: c.model || "openai", max_tokens: c.maxTokens ?? 400,
-          messages: [{ role: "system", content: system }, ...messages.filter((m) => m.role === "user" || m.role === "assistant").slice(-8)] }) });
+      let r = await send();
+      const wait = r.status === 402 ? Number(r.headers.get("Retry-After") || 60) : 0;
+      if (wait && wait <= (c.retryWithinS ?? 15) && Date.now() - started + wait * 1000 < limit) {
+        await new Promise((res) => setTimeout(res, wait * 1000 + 250)); // another app on this address had the slot: wait as told, once
+        r = await send();
+      }
       if (r.status === 402) this._nextDirect = Date.now() + 1000 * Number(r.headers.get("Retry-After") || 60); // over the free limit
       if (r.status !== 200) return null;
       const ok = checkDirect((await r.json()).choices[0].message.content, prompt, actions, structured, c.maxChars ?? 600);
